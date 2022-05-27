@@ -5,6 +5,7 @@ import "./styles/index.css";
 import { App } from "./initial";
 // import { App } from "./completed";
 // import { App } from "./completed-data";
+// import { App } from "./class-version";
 
 let $root = document.getElementById("root");
 
