@@ -1,3 +1,5 @@
+import { notes } from "../data/notes";
+
 const KEY = "notes";
 
 /**
@@ -12,6 +14,10 @@ export function generateId() {
   return crypto.randomUUID();
 }
 
+export function populate() {
+  localStorage.setItem(KEY, JSON.stringify(notes));
+}
+
 /**
  * @param {number} ms
  * @returns {Promise<void>}
@@ -23,7 +29,7 @@ let sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
  * @returns {Promise<Note[]>}
  */
 export async function getAllNotes() {
-  await sleep(300);
+  await fakeNetwork();
   let storedValue = localStorage.getItem(KEY);
   if (!storedValue) return [];
   return JSON.parse(storedValue);
@@ -35,7 +41,7 @@ export async function getAllNotes() {
  * @returns {Promise<Note> | Promise<null>}
  */
 export async function getNoteById(id) {
-  await sleep(300);
+  await fakeNetwork();
   let notes = await getAllNotes();
   let note = notes.find((note) => note.id === id);
   if (!note) return null;
@@ -49,7 +55,7 @@ export async function getNoteById(id) {
  * @returns {Promise<Note>}
  */
 export async function createNote(title, body) {
-  await sleep(300);
+  await fakeNetwork();
   let id = generateId();
   let createdAt = new Date().toISOString();
 
@@ -70,8 +76,12 @@ export async function createNote(title, body) {
  * @returns {Promise<void>}
  */
 export async function deleteNote(id) {
-  await sleep(300);
+  await fakeNetwork();
   let notes = await getAllNotes();
   let filteredNotes = notes.filter((note) => note.id !== id);
   localStorage.setItem(KEY, JSON.stringify(filteredNotes));
+}
+
+async function fakeNetwork() {
+  await sleep(Math.random() * 500);
 }

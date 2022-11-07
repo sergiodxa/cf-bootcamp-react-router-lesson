@@ -1,5 +1,8 @@
-import { useState } from "react";
-import { notes } from "./data/notes";
+import { useEffect, useMemo, useState } from "react";
+import { Spinner } from "./components/spinner";
+import { getAllNotes, getNoteById, populate } from "./models/notes";
+
+populate();
 
 export function App() {
   let [noteId, setNoteId] = useState(null);
@@ -35,43 +38,18 @@ function Root({ children }) {
 }
 
 /**
- * @param {Object} props
- * @param {string} props.noteId
- */
-function NotesDetail({ noteId }) {
-  let note = notes.find((note) => note.id === noteId);
-
-  if (!note) {
-    return <h1>Note not found, select another one</h1>;
-  }
-
-  let date = new Date(note.createdAt);
-
-  return (
-    <article>
-      <h2>{note.title}</h2>
-      <p>{note.body}</p>
-      <time dateTime={note.createdAt}>
-        {date.toLocaleDateString(window.navigator.languages, {
-          year: "numeric",
-          month: "long",
-          day: "2-digit",
-        })}
-      </time>
-    </article>
-  );
-}
-
-/**
  *
  * @param {Object} props
  * @param {import("react").ReactNode} props.children
  * @param {import("react").Dispatch<string>} props.setNoteId
  * @returns
  */
-export default function NotesLayout({ children, setNoteId }) {
+function NotesLayout({ children, setNoteId }) {
+  let { status, notes } = useNotes();
   let [sort, setSort] = useState("id");
-  let [dir, setDir] = useState("desct");
+  let [dir, setDir] = useState("desc");
+
+  if (status === "loading") return <Spinner />;
 
   let sorted = [...notes].sort((noteA, noteB) => {
     if (sort in noteA) {
@@ -123,10 +101,77 @@ export default function NotesLayout({ children, setNoteId }) {
               </li>
             );
           })}
+          <li>
+            <button onClick={() => setNoteId("RANDOM")}>
+              Not found example
+            </button>
+          </li>
         </ul>
       </nav>
 
       {children}
     </section>
   );
+}
+
+function useNotes() {
+  let [status, setStatus] = useState("loading");
+  let [notes, setNotes] = useState([]);
+
+  useEffect(() => {
+    setStatus("loading");
+    getAllNotes()
+      .then(setNotes)
+      .finally(() => setStatus("done"));
+  }, []);
+
+  return useMemo(() => {
+    return { status, notes };
+  }, [status, notes]);
+}
+
+/**
+ * @param {Object} props
+ * @param {string} props.noteId
+ */
+function NotesDetail({ noteId }) {
+  let { status, note } = useNoteById(noteId);
+
+  if (status === "loading") return <Spinner />;
+
+  let notFound = status === "done" && note === null;
+
+  if (notFound) return <h1>Note {noteId} can't be found.</h1>;
+
+  let date = new Date(note.createdAt);
+
+  return (
+    <article>
+      <h2>{note.title}</h2>
+      <p>{note.body}</p>
+      <time dateTime={note.createdAt}>
+        {date.toLocaleDateString(window.navigator.languages, {
+          year: "numeric",
+          month: "long",
+          day: "2-digit",
+        })}
+      </time>
+    </article>
+  );
+}
+
+function useNoteById(noteId) {
+  let [status, setStatus] = useState("loading");
+  let [note, setNote] = useState(null);
+
+  useEffect(() => {
+    setStatus("loading");
+    getNoteById(noteId)
+      .then(setNote)
+      .finally(() => setStatus("done"));
+  }, [noteId]);
+
+  return useMemo(() => {
+    return { status, note };
+  }, [status, note]);
 }

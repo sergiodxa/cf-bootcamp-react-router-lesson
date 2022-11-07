@@ -1,16 +1,16 @@
 import {
   Navigate,
-  Route,
   Link,
   Outlet,
   useSearchParams,
   json,
   useLoaderData,
-  DataBrowserRouter,
   Form,
   useLocation,
   redirect,
   useNavigation,
+  createBrowserRouter,
+  RouterProvider,
 } from "react-router-dom";
 import {
   createNote,
@@ -19,30 +19,34 @@ import {
   getNoteById,
 } from "./models/notes";
 
+let router = createBrowserRouter([
+  {
+    element: <Root />,
+    children: [
+      { index: true, element: <Navigate to="/notes" /> },
+      {
+        path: "notes",
+        element: <NotesLayout />,
+        loader: notesLayoutLoader,
+        children: [
+          { index: true, element: <h1>Pick a note at the left</h1> },
+          { path: "new", element: <NoteForm />, action: notesFormAction },
+          {
+            path: ":noteId",
+            element: <NotesDetail />,
+            loader: notesDetailsLoader,
+            action: notesDetailsAction,
+            errorElement: <h1>Note not found, select another one</h1>,
+          },
+        ],
+      },
+      { path: "*", element: <h2>Not found</h2> },
+    ],
+  },
+]);
+
 export function App() {
-  return (
-    <DataBrowserRouter>
-      <Route element={<Root />}>
-        <Route element={<Navigate to="/notes" replace />} path="/" />
-        <Route
-          element={<NotesLayout />}
-          path="notes"
-          loader={notesLayoutLoader}
-        >
-          <Route element={<h1>Pick a note at the left</h1>} index />
-          <Route element={<NoteForm />} path="new" action={notesFormAction} />
-          <Route
-            element={<NotesDetail />}
-            path=":noteId"
-            loader={notesDetailsLoader}
-            action={notesDetailsAction}
-            errorElement={<h1>Note not found, select another one</h1>}
-          />
-        </Route>
-        <Route element={<h2>Not Found</h2>} path="*" />
-      </Route>
-    </DataBrowserRouter>
-  );
+  return <RouterProvider router={router} />;
 }
 
 function Root() {
