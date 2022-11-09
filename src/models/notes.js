@@ -82,6 +82,19 @@ export async function deleteNote(id) {
   localStorage.setItem(KEY, JSON.stringify(filteredNotes));
 }
 
+export async function updateNote(id, title, body) {
+  await fakeNetwork();
+  let notes = await getAllNotes();
+  notes = notes.map((note) => {
+    if (note.id !== id) return note;
+    note.title = title;
+    note.body = body;
+    return note;
+  });
+  localStorage.setItem(KEY, JSON.stringify(notes));
+  return notes.find((note) => note.id === id);
+}
+
 async function fakeNetwork() {
-  await sleep(Math.random() * 500);
+  await sleep(Math.random() * 500 + 1000);
 }
