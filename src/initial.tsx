@@ -134,9 +134,7 @@ function MessageList({ channelId, users, revalidate }: MessageListProps) {
   let [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    if (channelId) {
-      listMessages(channelId).then(setMessages);
-    }
+    listMessages(channelId).then(setMessages);
   }, [channelId, revalidate]);
 
   return (
