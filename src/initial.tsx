@@ -20,42 +20,39 @@ export function App() {
 
   let activeUser = users.find((user) => user.name === "sergiodxa");
 
+  if (users.length === 0 || !activeUser) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <Spinner className="size-20" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex w-full h-screen bg-slate-50">
-      {users.length === 0 || !activeUser ? (
-        <div className="w-full h-full flex items-center justify-center">
-          <Spinner className="size-20" />
-        </div>
-      ) : (
-        <>
-          <ServerList
-            serverId={activeServer}
-            onServerSelect={setActiveServer}
+      <ServerList serverId={activeServer} onServerSelect={setActiveServer} />
+
+      {activeServer && (
+        <ChannelList
+          channelId={activeChannel}
+          serverId={activeServer}
+          onChannelSelect={setActiveChannel}
+        />
+      )}
+
+      {activeChannel && (
+        <div className="flex-grow flex flex-col w-full">
+          <MessageList
+            channelId={activeChannel}
+            users={users}
+            revalidate={revalidateMessages}
           />
-
-          {activeServer && (
-            <ChannelList
-              channelId={activeChannel}
-              serverId={activeServer}
-              onChannelSelect={setActiveChannel}
-            />
-          )}
-
-          {activeChannel && (
-            <div className="flex-grow flex flex-col w-full">
-              <MessageList
-                channelId={activeChannel}
-                users={users}
-                revalidate={revalidateMessages}
-              />
-              <CreateMessageForm
-                channelId={activeChannel}
-                userId={activeUser.id}
-                onMessageCreated={() => setRevalidateMessages(Symbol())}
-              />
-            </div>
-          )}
-        </>
+          <CreateMessageForm
+            channelId={activeChannel}
+            userId={activeUser.id}
+            onMessageCreated={() => setRevalidateMessages(Symbol())}
+          />
+        </div>
       )}
     </div>
   );
