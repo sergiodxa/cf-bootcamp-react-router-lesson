@@ -5,7 +5,6 @@ import { Message, createMessage, listMessages } from "./models/messages";
 import clsx from "clsx";
 import { User, listUsers } from "./models/users";
 import { Spinner } from "./components/spinner";
-import { flushSync } from "react-dom";
 
 export function App() {
   let [users, setUsers] = useState<User[]>([]);
@@ -199,7 +198,6 @@ function CreateMessageForm({
     setStatus("pending");
     await createMessage(userId, channelId, content);
     onMessageCreated();
-    flushSync(() => setStatus("idle"));
-    form.reset();
+    setStatus("idle");
   }
 }
