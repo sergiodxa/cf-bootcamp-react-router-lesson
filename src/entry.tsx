@@ -7,7 +7,7 @@ import { createUsers, listUsers } from "./models/users";
 import { createChannel } from "./models/channels";
 import { createMessage } from "./models/messages";
 
-import { App } from "./final";
+import { App } from "./initial";
 import data from "./data";
 
 if (localStorage.getItem("mocked") !== "true") {
