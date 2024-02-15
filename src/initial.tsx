@@ -106,9 +106,7 @@ function ChannelList({
   let [channels, setChannels] = useState<Channel[]>([]);
 
   useEffect(() => {
-    if (serverId) {
-      listChannels(serverId).then(setChannels);
-    }
+    listChannels(serverId).then(setChannels);
   }, [serverId]);
 
   return (
